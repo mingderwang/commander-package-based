@@ -1,12 +1,24 @@
 {
-    "name": "is-odd",
-    "version": "0.0.0",
-    "main": "dist/index.js",
-    "devDependencies": {},
-    "scripts": {
-      "build": "tsc index.ts --outDir dist"
-    },
-    "dependencies": {
-      "is-even": "*"
+  "name": "is-odd",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "devDependencies": {
+    "nx": "16.5.5",
+    "nx-cloud": "latest"
+  },
+  "scripts": {
+    "build": "nx exec -- tsc index.ts --outDir dist"
+  },
+  "dependencies": {
+    "is-even": "*"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      }
     }
   }
+}

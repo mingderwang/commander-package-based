@@ -2,8 +2,20 @@
   "name": "is-even",
   "version": "0.0.0",
   "main": "dist/index.js",
-  "devDependencies": {},
+  "devDependencies": {
+    "nx": "16.5.5",
+    "nx-cloud": "latest"
+  },
   "scripts": {
-    "build": "tsc index.ts --outDir dist"
+    "build": "nx exec -- tsc index.ts --outDir dist"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      }
+    }
   }
 }
