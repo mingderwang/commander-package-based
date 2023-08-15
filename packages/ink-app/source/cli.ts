@@ -1,82 +1,71 @@
 #!/usr/bin/env node
-import { fileURLToPath } from 'url';
-import {Command} from 'commander';
-import figlet from 'figlet';
-import fs from 'fs';
-import { dirname } from 'path';
-import path from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
+// const commander = require('commander'); // (normal include)
+import { Command, Option } from 'commander'; // include commander in git clone of commander repo
 const program = new Command();
 
-console.log(figlet.textSync('Cli2'));
+// This example shows using some hooks for life cycle events.
+
+const timeLabel = 'command duration';
+program
+  .option('--profile', 'show how long command takes')
+  .hook('preAction', (thisCommand) => {
+    if (thisCommand.opts().profile) {
+      console.time(timeLabel);
+    }
+  })
+  .hook('postAction', (thisCommand) => {
+    if (thisCommand.opts().profile) {
+      console.timeEnd(timeLabel);
+    }
+  });
 
 program
-	.name('cli2')
-	.version('0.0.3')
-	.description('My CLI Tool');
+  .option('--trace', 'display trace statements for commands')
+  .hook('preAction', (thisCommand, actionCommand) => {
+    if (thisCommand.opts().trace) {
+      console.log('>>>>');
+      console.log(`About to call action handler for subcommand: ${actionCommand.name()}`);
+      console.log('arguments: %O', actionCommand.args);
+      console.log('options: %o', actionCommand.opts());
+      console.log('<<<<');
+    }
+  });
 
 program
-    .command('subcommand1')
-	.description('An example CLI for managing a directory')
-	.option('-l, --ls  [value]', 'List directory contents')
-	.option('-m, --mkdir <value>', 'Create a directory')
-	.option('-t, --touch <value>', 'Create a file')
+  .option('--env <filename>', 'specify environment file')
+  .hook('preSubcommand', (thisCommand, subcommand) => {
+    if (thisCommand.opts().env) {
+      // One use case for this hook is modifying environment variables before
+      // parsing the subcommand, say by reading .env file.
+      console.log(`Reading ${thisCommand.opts().env}...`);
+      process.env.PORT = 80;
+      console.log(`About to call subcommand: ${subcommand.name()}`);
+    }
+  });
 
-	program
-    .command('subcommand2')
-	.description('An example CLI for managing a directory')
-	.option('-l, --ls  [value]', 'List directory contents')
-	.option('-m, --mkdir <value>', 'Create a directory')
-	.option('-t, --touch <value>', 'Create a file')
+program.command('start')
+  .argument('[script]', 'script name', 'server.js')
+  .option('-d, --delay <seconds>', 'how long to delay before starting')
+  .addOption(new Option('-p, --port <number>', 'port number').default(8080).env('PORT'))
+  .action(async(script, options) => {
+    if (options.delay) {
+      await new Promise(resolve => setTimeout(resolve, parseInt(options.delay) * 1000));
+    }
+    console.log(`Starting ${script} on port ${options.port}`);
+  });
 
-	program
-	.parse(process.argv);
+// Some of the hooks or actions are async, so call parseAsync rather than parse.
+program.parseAsync().then(() => {});
 
-const options = program.opts();
-
-async function listDirContents(filepath: string) {
-	try {
-	  const files = await fs.promises.readdir(filepath);
-	  const detailedFilesPromises = files.map(async (file: string) => {
-		let fileDetails = await fs.promises.lstat(path.resolve(filepath, file));
-		const { size, birthtime } = fileDetails;
-		return { filename: file, "size(KB)": size, created_at: birthtime };
-	  });
-	  const detailedFiles = await Promise.all(detailedFilesPromises);
-	  console.table(detailedFiles);
-	} catch (error) {
-	  console.error("Error occurred while reading the directory!", error);
-	}
-  }
-
-
-// create the following function
-function createDir(filepath: string) {
-	if (!fs.existsSync(filepath)) {
-	  fs.mkdirSync(filepath);
-	  console.log("The directory has been created successfully");
-	}
-  }
-
-// create the following function
-function createFile(filepath: string) {
-	fs.openSync(filepath, "w");
-	console.log("An empty file has been created");
-  }
-
-
-// check if the option has been used the user
-if (options.ls) {
-	const filepath = typeof options.ls === "string" ? options.ls : __dirname;
-	listDirContents(filepath);
-  }
-
-if (options.mkdir) {
-	createDir(path.resolve(__dirname, options.mkdir));
-  }
-if (options.touch) {
-	createFile(path.resolve(__dirname, options.touch));
-  }
+// Try the following:
+// tsx source/cli.ts start
+// -> Starting server.js on port 8080
+// tsx source/cli.ts start --port 3030
+// -> Starting server.js on port 3030
+// tsx source/cli.ts start --port 3030 server.js
+// -> Starting server.js on port 3030
+// tsx source/cli.ts start --port 3030 serve.ts
+// -> Starting serve.ts on port 3030
+// tsx source/cli.ts start --port 3030 serve.ts --delay 10
+// -> Starting serve.ts on port 3030 (after 10 secs)
