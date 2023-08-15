@@ -1,29 +1,18 @@
 #!/usr/bin/env node
-import React from 'react';
-import {render} from 'ink';
-import meow from 'meow';
-import App from './app.js';
 
-const cli = meow(
-	`
-	Usage
-	  $ ink-app
+import {Command} from 'commander';
+import figlet from 'figlet';
 
-	Options
-		--name  Your name
+const program = new Command();
 
-	Examples
-	  $ ink-app --name=Jane
-	  Hello, Jane
-`,
-	{
-		importMeta: import.meta,
-		flags: {
-			name: {
-				type: 'string',
-			},
-		},
-	},
-);
+console.log(figlet.textSync('Dir Manager'));
 
-render(<App name={cli.flags.name} />);
+program
+	.version('0.0.2')
+	.description('An example CLI for managing a directory')
+	.option('-l, --ls  [value]', 'List directory contents')
+	.option('-m, --mkdir <value>', 'Create a directory')
+	.option('-t, --touch <value>', 'Create a file')
+	.parse(process.argv);
+
+//const options = program.opts();

@@ -5,11 +5,18 @@
   "scripts": {},
   "private": true,
   "devDependencies": {
+    "@types/figlet": "1.5.6",
+    "@types/node": "20.5.0",
     "nx": "16.6.0",
     "nx-cloud": "latest",
+    "swc": "1.0.11",
     "typescript": "^5.1.6"
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "commander": "11.0.0",
+    "figlet": "1.6.0"
+  }
 }
