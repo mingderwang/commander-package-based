@@ -1,21 +1,38 @@
 #!/usr/bin/env node
-
+import { fileURLToPath } from 'url';
 import {Command} from 'commander';
 import figlet from 'figlet';
 import fs from 'fs';
+import { dirname } from 'path';
 import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const program = new Command();
 
 console.log(figlet.textSync('Cli2'));
 
 program
-	.version('0.0.2')
 	.name('cli2')
+	.version('0.0.3')
+	.description('My CLI Tool');
+
+program
+    .command('subcommand1')
 	.description('An example CLI for managing a directory')
 	.option('-l, --ls  [value]', 'List directory contents')
 	.option('-m, --mkdir <value>', 'Create a directory')
 	.option('-t, --touch <value>', 'Create a file')
+
+	program
+    .command('subcommand2')
+	.description('An example CLI for managing a directory')
+	.option('-l, --ls  [value]', 'List directory contents')
+	.option('-m, --mkdir <value>', 'Create a directory')
+	.option('-t, --touch <value>', 'Create a file')
+
+	program
 	.parse(process.argv);
 
 const options = program.opts();
@@ -35,8 +52,31 @@ async function listDirContents(filepath: string) {
 	}
   }
 
+
+// create the following function
+function createDir(filepath: string) {
+	if (!fs.existsSync(filepath)) {
+	  fs.mkdirSync(filepath);
+	  console.log("The directory has been created successfully");
+	}
+  }
+
+// create the following function
+function createFile(filepath: string) {
+	fs.openSync(filepath, "w");
+	console.log("An empty file has been created");
+  }
+
+
 // check if the option has been used the user
 if (options.ls) {
 	const filepath = typeof options.ls === "string" ? options.ls : __dirname;
 	listDirContents(filepath);
+  }
+
+if (options.mkdir) {
+	createDir(path.resolve(__dirname, options.mkdir));
+  }
+if (options.touch) {
+	createFile(path.resolve(__dirname, options.touch));
   }

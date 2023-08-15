@@ -1,8 +1,10 @@
 {
 	"name": "@muzamint/ink-app",
-	"version": "0.0.1",
+	"version": "0.0.3",
 	"license": "MIT",
-	"bin": "dist/cli.js",
+	"bin": {
+		"cli2": "dist/cli.js"
+	},
 	"type": "module",
 	"engines": {
 		"node": ">=16"
