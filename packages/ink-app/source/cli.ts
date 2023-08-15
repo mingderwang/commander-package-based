@@ -69,3 +69,10 @@ program.parseAsync().then(() => {});
 // -> Starting serve.ts on port 3030
 // tsx source/cli.ts start --port 3030 serve.ts --delay 10
 // -> Starting serve.ts on port 3030 (after 10 secs)
+// tsx source/cli.ts --profile start --delay 3
+// -> Starting server.js on port 8080
+//    command duration: 3.009s
+// tsx source/cli.ts --env=production.env start
+// -> Reading production.env...
+//    About to call subcommand: start
+//    Starting server.js on port 80
